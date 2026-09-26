@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ex-omni-2d"
+version = "0.1.0"
+description = "Ex-Omni-2D"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+license = {file = "LICENSE"}
+authors = [{name = "Ex-Omni-2D contributors"}]
+dependencies = [
+  "huggingface-hub>=0.36,<1.0",
+  "numpy>=1.26,<2.0",
+  "PyYAML>=6.0",
+  "Pillow>=9.0",
+  "soundfile>=0.13,<0.14",
+]
+
+[project.optional-dependencies]
+runtime = [
+  "torch>=2.7,<2.8",
+  "torchaudio>=2.7,<2.8",
+  "torchvision>=0.22,<0.23",
+  "transformers>=4.57,<4.58",
+  "accelerate>=1.12,<1.13",
+  "deepspeed>=0.17,<0.18",
+  "safetensors>=0.7,<0.9",
+  "einops>=0.8,<0.9",
+  "peft>=0.19,<0.20",
+  "diffusers==0.38.0",
+  "qwen-tts==0.1.1",
+  "tqdm>=4.67,<4.68",
+  "imageio>=2.37,<2.38",
+  "imageio-ffmpeg>=0.6,<0.7",
+  "ftfy>=6.3,<6.4",
+  "regex>=2026.5",
+]
+distributed = []
+demo = ["gradio>=6.3,<7"]
+evaluation = ["matplotlib>=3.10,<3.11"]
+
+[project.scripts]
+ex-omni-2d = "ex_omni.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ex_omni*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

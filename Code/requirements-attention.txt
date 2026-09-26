@@ -1,0 +1,3 @@
+# Optional optimized kernels. Install after PyTorch with --no-build-isolation.
+flash_attn==2.8.3
+flash_attn_3 @ git+https://github.com/Dao-AILab/flash-attention.git@v2.8.3#subdirectory=hopper

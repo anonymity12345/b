@@ -1,0 +1,23 @@
+--extra-index-url https://download.pytorch.org/whl/cu126
+torch==2.7.0+cu126
+torchaudio==2.7.0+cu126
+torchvision==0.22.0+cu126
+numpy==1.26.0
+huggingface-hub==0.36.2
+PyYAML==6.0.3
+Pillow==10.4.0
+soundfile==0.13.1
+transformers==4.57.3
+accelerate==1.12.0
+deepspeed==0.17.0
+safetensors==0.8.0rc0
+einops==0.8.2
+peft==0.19.1
+diffusers==0.38.0
+qwen-tts==0.1.1
+tqdm==4.67.3
+imageio==2.37.3
+imageio-ffmpeg==0.6.0
+ftfy==6.3.1
+regex==2026.5.9
+gradio==6.3.0

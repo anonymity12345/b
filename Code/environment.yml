@@ -1,0 +1,11 @@
+name: ex-omni-2d
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10.20
+  - pip
+  - ffmpeg
+  - sox
+  - pip:
+      - -r requirements.txt
+      - -e .

@@ -1,0 +1,4 @@
+# Install in a separate Python 3.12 environment. These packages select their
+# own compatible CUDA/PyTorch wheels and must not be mixed with requirements.txt.
+vllm==0.26.0
+vllm-omni==0.26.0

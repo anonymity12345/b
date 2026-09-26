@@ -1,0 +1,138 @@
+inference_profile: streaming
+attn_implementation: flash_attention_3
+runtime:
+  ffmpeg_path: null
+profiles:
+  quality:
+    video:
+      mode: full_sequence
+      causal_inference: false
+      lora_checkpoint: ${EX_OMNI_FULL_SEQUENCE_CHECKPOINT:-../weights/Ex-Omni-2D/video_generator/full_sequence.safetensors}
+      steps: 50
+      cfg: 3.5
+      audio_cfg: 3.5
+      sequence_parallel: 1
+      resident_models: false
+      negative_prompt: subtitles, overexposed, static, blurred details, worst quality,
+        low quality, deformed
+execution:
+  enabled: true
+  vae_gpu_id: 7
+  llm:
+    gpu_ids:
+    - 0
+    parallelism: single
+  speech:
+    gpu_ids:
+    - 1
+    parallelism: single
+    async: true
+    process_isolation: true
+    device: auto
+  video:
+    gpu_ids:
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    parallelism: sequence_parallel
+llm:
+  model_path: ${EX_OMNI_MODEL_PATH:-../weights/Ex-Omni-2D}
+  vision_processor_path: hf://Qwen/Qwen3-VL-2B-Instruct
+  trust_remote_code: true
+  dtype: bf16
+  distributed_backend: native_tp
+  tp_size: 1
+  load_method: hf_auto_full
+  device_map: cuda
+  num_beams: 1
+  max_new_tokens: 512
+  temperature: 0.7
+  top_p: 0.9
+  max_history_length: 10
+  temp_dir: ${EX_OMNI_TEMP_DIR:-../outputs/tmp}
+  use_kv_cache: true
+speech:
+  code2wav_model_path: hf://Qwen/Qwen3-TTS-Tokenizer-12Hz
+  code2wav_device: cuda:0
+  waveform_initial_chunk_units: 6
+  waveform_chunk_units: 6
+  waveform_left_context_units: 72
+  max_tokens: 750
+  do_sample: true
+  top_k: 50
+  top_p: 1.0
+  temperature: 0.9
+  repetition_penalty: 1.05
+  stream_chunk_units: 6
+  ref_audio_min_seconds: 3.0
+  ref_audio_max_seconds: 10.0
+  use_kv_cache: true
+  residual_use_kv_cache: true
+compile: true
+graph: true
+video:
+  mode: streaming
+  causal_inference: true
+  device: cuda
+  dtype: bf16
+  distributed: true
+  distributed_backend: nccl
+  use_fsdp: false
+  resident_models: true
+  rank0_vae: true
+  sequence_parallel: 5
+  i2v: true
+  use_audio: true
+  input_speech_type: tokens
+  random_prefix_frames: false
+  model_config:
+    in_dim: 33
+    audio_hidden_size: 32
+  text_encoder_path: hf://Wan-AI/Wan2.1-T2V-1.3B::models_t5_umt5-xxl-enc-bf16.pth
+  text_tokenizer_path: hf://Wan-AI/Wan2.1-T2V-1.3B::google/umt5-xxl/
+  dit_path: hf://Wan-AI/Wan2.1-T2V-1.3B::diffusion_pytorch_model.safetensors
+  vae_path: hf://Wan-AI/Wan2.1-T2V-1.3B::Wan2.1_VAE.pth
+  speech_tokenizer_path: hf://Qwen/Qwen3-TTS-Tokenizer-12Hz
+  base_checkpoint: hf://OmniAvatar/OmniAvatar-1.3B::pytorch_model.pt
+  lora_checkpoint: ${EX_OMNI_STREAMING_CHECKPOINT:-../weights/Ex-Omni-2D/video_generator/streaming.safetensors}
+  speech_token_num_codebooks: 16
+  speech_token_rate: 12.5
+  speech_token_codebook_source: decoder
+  speech_token_embedding_dim: 256
+  speech_token_adapter_dim: 10752
+  fps: 25
+  sample_rate: 16000
+  architecture: lora
+  lora_rank: 128
+  lora_alpha: 64.0
+  lora_target_modules: q,k,v,o,ffn.0,ffn.2
+  init_lora_weights: kaiming
+  steps: 8
+  stream_sink_rope_distance: 30
+  cfg: 1.0
+  audio_cfg: 1.0
+  sigma_shift: 5.0
+  flowmap_gate: 0.25
+  deltatime_type: r
+  training_timesteps: 1000
+  stream_chunk_latent_frames: 3
+  stream_first_chunk_latent_frames: 1
+  stream_full_chunk_limit: 3
+  stream_full_patch_size:
+  - 1
+  - 2
+  - 2
+  stream_compressed_patch_size:
+  - 1
+  - 4
+  - 4
+  stream_max_compressed_latent_frames: 96
+  tea_cache_l1_thresh: 0
+  merge_lora: true
+  seed: 42
+  negative_prompt: ''
+  use_kv_cache: true
+  sp_size: 5
+  share_streaming_metadata: true

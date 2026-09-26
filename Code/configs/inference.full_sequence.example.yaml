@@ -1,0 +1,97 @@
+inference_profile: offline_performance
+attn_implementation: flash_attention_3
+runtime:
+  # Optional absolute path. null checks env, PATH, then imageio-ffmpeg.
+  ffmpeg_path: null
+llm:
+  model_path: ${EX_OMNI_MODEL_PATH:-../weights/Ex-Omni-2D}
+  model_class: null
+  vision_processor_path: hf://Qwen/Qwen3-VL-2B-Instruct
+  trust_remote_code: true
+  dtype: bf16
+  device_map: auto
+  load_method: hf_auto_full
+  num_beams: 1
+  max_new_tokens: 512
+  temperature: 0.7
+  top_p: 0.9
+  max_history_length: 10
+  temp_dir: ${EX_OMNI_TEMP_DIR:-../outputs/tmp}
+  use_kv_cache: true
+speech:
+  code2wav_model_path: hf://Qwen/Qwen3-TTS-Tokenizer-12Hz
+  code2wav_device: cuda
+  waveform_initial_chunk_units: 6
+  waveform_chunk_units: 6
+  waveform_left_context_units: 72
+  stream_chunk_units: 6
+  max_tokens: 750
+  do_sample: true
+  top_k: 50
+  top_p: 1.0
+  temperature: 0.9
+  repetition_penalty: 1.05
+  ref_audio_min_seconds: 3.0
+  ref_audio_max_seconds: 10.0
+  tokenizer_id: Qwen/Qwen3-TTS-Tokenizer-12Hz
+  tokenizer_revision: null
+  token_codebook_source: decoder
+  use_kv_cache: true
+  residual_use_kv_cache: true
+compile: true
+graph: false
+video:
+  mode: full_sequence
+  # Lossless speedup: keep full-sequence DiT/VAE/T5 resident on GPU. Set false when VRAM is constrained.
+  resident_models: true
+  causal_inference: false
+  device: cuda:0
+  dtype: bf16
+  distributed: false
+  sequence_parallel: 1
+  use_audio: true
+  model_config:
+    in_dim: 33
+    audio_hidden_size: 32
+  text_encoder_path: hf://Wan-AI/Wan2.1-T2V-1.3B::models_t5_umt5-xxl-enc-bf16.pth
+  text_tokenizer_path: hf://Wan-AI/Wan2.1-T2V-1.3B::google/umt5-xxl/
+  dit_path: hf://Wan-AI/Wan2.1-T2V-1.3B::diffusion_pytorch_model.safetensors
+  vae_path: hf://Wan-AI/Wan2.1-T2V-1.3B::Wan2.1_VAE.pth
+  speech_tokenizer_path: hf://Qwen/Qwen3-TTS-Tokenizer-12Hz
+  base_checkpoint: hf://OmniAvatar/OmniAvatar-1.3B::pytorch_model.pt
+  lora_checkpoint: ${EX_OMNI_FULL_SEQUENCE_CHECKPOINT:-../weights/Ex-Omni-2D/video_generator/full_sequence.safetensors}
+  speech_token_num_codebooks: 16
+  speech_token_rate: 12.5
+  speech_token_codebook_source: decoder
+  speech_token_embedding_dim: 256
+  speech_token_adapter_dim: 10752
+  fps: 25
+  architecture: lora
+  lora_rank: 128
+  lora_alpha: 64.0
+  lora_target_modules: q,k,v,o,ffn.0,ffn.2
+  init_lora_weights: kaiming
+  steps: 50
+  # Conservative full-sequence guidance default.
+  cfg: 4.0
+  audio_cfg: 4.0
+  overlap_frame: 1
+  sigma_shift: 5.0
+  # The released full-sequence recipe uses fixed 125-frame training windows. Set
+  # this to null only when dynamic max_tokens windows are desired.
+  window_frames: 125
+  max_tokens: 30000
+  max_hw: 720
+  image_sizes_720:
+  - - 400
+    - 720
+  - - 720
+    - 720
+  - - 720
+    - 400
+  # TeaCache is approximate; set to 0 for strict full-compute quality.
+  tea_cache_l1_thresh: 0.05
+  merge_lora: true
+  seed: 42
+  negative_prompt: subtitles, overexposed, static, blurred details, worst quality, low quality, deformed
+  use_kv_cache: true
